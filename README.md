@@ -253,6 +253,5 @@ Config
 Maze
 
 ↓
-
 Labirinto Renderizado
 ```
