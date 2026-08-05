@@ -40,8 +40,4 @@ No GitHub, crie um **Pull Request** da sua branch para a `master`.
 
 ## ✅ Boas práticas
 
-* Nunca trabalhe diretamente na `master`.
-* Sempre atualize a `master` antes de iniciar uma nova tarefa.
-* Faça commits pequenos e descritivos.
-* Sempre utilize **Pull Request** antes do **Merge**.
-
+Boa prática: sempre que for começar uma nova funcionalidade, primeiro atualize sua master com git pull origin master e depois atualize sua branch com git merge master. Assim você trabalha sempre com a versão mais recente do projeto e reduz a chance de conflitos.
