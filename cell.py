@@ -1,20 +1,19 @@
 from enum import IntFlag
 
-# class corenadas de uma celula
+
 class Wall(IntFlag):
     NORTH = 1
     EAST = 2
     SOUTH = 4
     WEST = 8
 
-# clss cell: cada celula tem posiçaõ linha e coluna 
-# e se foi visitada e as paredes  
+# utiliza composição: tem uma
 class Cell():
     def __init__(self, row, col):
         self.row = row
         self.col = col
         self.visited = False
-# aqui aconetce a junçaõ de todas "|" as cordenadas ligadas
+
         self.walls = (
             Wall.NORTH |
             Wall.EAST |
@@ -22,10 +21,10 @@ class Cell():
             Wall.WEST
         )
 
-# o maze cria a a base 
-class Maze(Cell):
+# o maze cria a base 
+# grid == dados bidimensionnal
+class Maze():
     def __init__(self, rows: int, cols: int):
-        super().__init__(row, col)
         self.rows = rows
         self.cols = cols
 
