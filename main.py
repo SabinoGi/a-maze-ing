@@ -9,7 +9,7 @@ from renderer.maze_renderer import MazeRenderer
 def main():
 
     # Ler e validar o arquivo de configuração
-    parser = ConfigParser("maze_config.txt")
+    parser = ConfigParser("config.txt")
     config = parser.parse()
 
     #  Criar o gerador
@@ -28,6 +28,6 @@ def main():
     # Interação com o usuário
     renderer.interaction()
 
-
+ 
 if __name__ == "__main__":
     main()
