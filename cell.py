@@ -36,6 +36,62 @@ class Grid():
         return 0 <= row < self.rows and 0 <= col < self.cols
 
 
+####### class wal, cell -> cell.py
+
+
+
+class MazeBacktrack:
+    """Escava os caminhos do labirinto usando uma pilha e decisões claras em loop."""
+
+    def __init__(self, grid: Grid, rng: random.Random) -> None:
+        self.grid = grid
+        self.rng = rng
+
+    def _get_free_neighbors(self, cell: Cell) -> list[Cell]:
+        """Returns only the neighbors that have NOT yet been visited.."""
+        free_neighbors: list[Cell] = []
+        
+        directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Norte, Sul, Leste, Oest
+
+        for d_line, d_coluna in directions:
+            new_line = cell.row + d_line
+            new_colun = cell.col + d_coluna
+
+            if self.grid.is_valid(new_line, new_colun):
+                neighbors = self.grid.get(new_line, new_colun)
+                
+                if not neighbors.visited:
+                    free_neighbors.append(neighbors)
+
+        return free_neighbors
+
+    def carve(self, start_row: int, start_col: int) -> None:
+        """Executes the main carving loop (Move Forward and Carve or Backtrack)."""
+
+        #Starting point
+        start_cell = self.grid.get(start_row, start_col)
+        start_cell.visited = True
+
+        stack: list[Cell] = [start_cell]
+
+        #Backtracking loop
+        while len(stack) > 0:
+            current_cell = stack[-1]
+
+            unvisited_neighbors = self._find_unvisited_neighbors(current_cell)
+
+            if len(unvisited_neighbors) > 0:
+                next_cell = self.rng.choice(unvisited_neighbors)
+
+                self.grid.connect(current_cell, next_cell)
+
+                next_cell.visited = True
+                stack.append(next_cell)
+
+            else:
+                stack.pop()
+
+
 class Pattern42:
     """'42' visual pattern, end verif if grade is suffient."""
  
@@ -72,7 +128,6 @@ class Pattern42:
                     cell.is_42 = True
                     cell.visited = True
 
-    
 
 class MazeGenerator:
     """Lead orchestrator responsible for integrating the generation pipeline."""
