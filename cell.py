@@ -47,15 +47,32 @@ class Pattern42:
         (0, 0, 1, 0, 1, 1, 1),
     )
 
-    @staticmethod
-    def is_suffient(rows, cols):
-        pattern_rows = len(Pattern42.PATTERN)
-        pattern_cols = len(Pattern42.PATTERN[0])
+    HEIGHT = 5
+    WIDTH = 7
 
-        if rows < pattern_rows or cols < pattern_cols:
-            return None
+    @classmethod
+    def can_fit(cls, grid_rows: int, grid_cols: int) -> bool:
+        """Verifica se o grid tem espaço suficiente para o padrão + margens ao redor."""
 
-        return Pattern42.PATTERN
+        min_rows = cls.HEIGHT + 2
+        min_cols = cls.WIDTH + 2
+        return grid_rows >= min_rows and grid_cols >= min_cols
+
+    @classmethod
+    def apply(cls, grid: Grid) -> None:
+        """Centraliza e 'carimba' o padrão 42, marcando as células afetadas."""
+
+        start_row = (grid.rows - cls.HEIGHT)
+        start_col = (grid.cols - cls.WIDTH)
+
+        for r_offset in range(cls.HEIGHT):
+            for c_offset in range(cls.WIDTH):
+                if cls.PATTERN[r_offset][c_offset] == 1:
+                    cell = grid.get(start_row + r_offset, start_col + c_offset)
+                    cell.is_42 = True
+                    cell.visited = True
+
+    
 
 class MazeGenerator:
     """Lead orchestrator responsible for integrating the generation pipeline."""
@@ -75,14 +92,15 @@ class MazeGenerator:
     def generate(self) -> None:
         """Executa todo o pipeline de geração: padrão '42', escavação e (se aplicável) loops."""
 
-        self.is_pattern42 = Pattern42.apply(self.grid)
-        entry_col = self.entry[0]
-        entry_row = self.entry[1]
-
-        if not self.pattern_applied:
+        if Pattern42.can_fit(self.grid.rows, self.grid.cols):
+            Pattern42.apply(self.grid)
+            self.pattern_applied = True
+        else:
+            self.pattern_applied = False
             print("Insufficient dimensions to draw the '42' pattern..")
 
-        MazeBacktrak(self.grid, entry_row, entry_col)
+        entry_col, entry_row = self.entry
+        MazeBacktrack(self.grid, self.rng).carve(entry_row, entry_col)
 
         if not self.perfect:
             MazePacMan(self.grid, self.rng).braid()
