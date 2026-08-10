@@ -92,7 +92,7 @@ class ConfigParser:
             else:
                 config[key] = val
 
-        return config  # Retorno adicionado aqui!
+        return config
 
     def parse(self) -> dict[str, typing.Any]:
         """Executa a leitura e a validação em sequência."""
