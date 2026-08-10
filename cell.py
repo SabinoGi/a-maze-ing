@@ -74,6 +74,7 @@ class Grid():
     def walls_int(self) -> list[list[int]]:
         list_walls: list[list[int]] = []
 
+
         for line in self.grid:
             line_nbr: list[int] = []
 
@@ -177,6 +178,8 @@ class MazePacMan:
                         self.grid.connect(current_cell, selected_neighbor)
 
 
+=======
+>>>>>>> b86f004 (new seed)
 class MazeBacktrack:
     """Carve out the paths of the maze using a stack."""
 
@@ -270,9 +273,14 @@ class MazeGenerator:
     """Lead orchestrator responsible for integrating the generation."""
     def __init__(
         self, rows: int, cols: int, entry: tuple[int, int],
+
         exit: tuple[int, int], perfect: bool,
             seed: int | None = None, 
             output_file: str = "maze.txt") -> None:
+
+        exit: tuple[int, int], perfect: bool = False,
+            seed: int | None = None) -> None:
+>>>>>>> b86f004 (new seed)
 
         self.grid = Grid(rows, cols)
         self.entry = entry
@@ -344,12 +352,17 @@ class MazeGenerator:
             f.write(f"{path_string}\n")
 
 
+
 class MazeRenderer:
     def __init__(self, grid: Grid):
         self.grid = grid
 
     def export(maze: list[list[int]], file_name: str) -> None:
         file: typing.IO[str] | None = None
+
+# def show_maze(grid):
+#    for row in range(grid.rows):
+>>>>>>> b86f004 (new seed)
 
         try:
             file = open(file_name, "w")
@@ -372,6 +385,12 @@ def show_maze(grid):
         # Linha superior
         for col in range(grid.cols):
             cell = grid.get_cell(row, col)
+=======
+# def main():
+#    grid = Grid(5, 5)
+
+#    rng = random.Random(55)
+>>>>>>> b86f004 (new seed)
 
             if cell.walls & Wall.NORTH:
                 print("+---", end="")
@@ -461,3 +480,7 @@ if __name__ == "__main__":
         maze = generator.get_walls_grid()
         solution = generator.get_solution_path()
     """
+=======
+# if __name__ == "__main__":
+#    main()
+>>>>>>> b86f004 (new seed)
