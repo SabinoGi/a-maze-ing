@@ -274,11 +274,15 @@ class MazeGenerator:
     def __init__(
         self, rows: int, cols: int, entry: tuple[int, int],
 
+
         exit: tuple[int, int], perfect: bool,
             seed: int | None = None, 
             output_file: str = "maze.txt") -> None:
 
         exit: tuple[int, int], perfect: bool = False,
+=======
+        exit: tuple[int, int], perfect: bool,
+
             seed: int | None = None) -> None:
 >>>>>>> b86f004 (new seed)
 
@@ -306,6 +310,7 @@ class MazeGenerator:
         if not self.perfect:
             MazePacMan(self.grid, self.rng).braid()
 
+
     def get_maze_data(self) -> tuple[list[list[int]], list[str]]:
         """
         Consolidates the wall matrix and the solution path into a single method.
@@ -317,6 +322,15 @@ class MazeGenerator:
         col = self.exit[1] - 1
         solution_path = MazeSolver(self.grid).shortest_path(self.entry, [row, col])
         return grid_maze, solution_path
+=======
+    # def get_walls_grid(self) -> list[list[int]]:
+    #    """Returns the grid as integers (0 to 15), each representing the closed walls."""
+    #    return self.grid.as_int_matrix()
+
+    # def get_solution_path(self) -> list[str]:
+        # """Returns the shortest path between the entrance and the exit."""
+        # return MazeSolver(self.grid).shortest_path(self.entry, self.exit)
+>>>>>>> 916fa57 (color 42)
 
     def write_file(self) -> None:
         """
@@ -360,6 +374,7 @@ class MazeRenderer:
     def export(maze: list[list[int]], file_name: str) -> None:
         file: typing.IO[str] | None = None
 
+<<<<<<< HEAD
 # def show_maze(grid):
 #    for row in range(grid.rows):
 >>>>>>> b86f004 (new seed)
@@ -484,3 +499,70 @@ if __name__ == "__main__":
 # if __name__ == "__main__":
 #    main()
 >>>>>>> b86f004 (new seed)
+=======
+def show_maze(grid):
+    for row in range(grid.rows):
+
+        # Linha superior
+        for col in range(grid.cols):
+            cell = grid.get_cell(row, col)
+
+            if cell.walls & Wall.NORTH:
+                print("+---", end="")
+            else:
+                print("+   ", end="")
+
+        print("+")
+
+        # Conteúdo + paredes laterais
+        for col in range(grid.cols):
+            cell = grid.get_cell(row, col)
+
+            if cell.walls & Wall.WEST:
+                print("|", end="")
+            else:
+                print(" ", end="")
+
+            if cell.is_42:
+                print("\033[41m   \033[0m", end="")
+            else:
+                print("   ", end="")
+
+        # Parede direita
+        cell = grid.get_cell(row, grid.cols - 1)
+
+        if cell.walls & Wall.EAST:
+            print("|")
+        else:
+            print(" ")
+
+    # Linha inferior
+    for col in range(grid.cols):
+        cell = grid.get_cell(grid.rows - 1, col)
+
+        if cell.walls & Wall.SOUTH:
+            print("+---", end="")
+        else:
+            print("+   ", end="")
+
+    print("+")
+
+
+def main():
+    generator = MazeGenerator(
+        rows=15,
+        cols=15,
+        entry=(0, 0),
+        exit=(9, 9),
+        perfect=True,
+        seed=42
+    )
+
+    generator.generate()
+
+    show_maze(generator.grid)
+
+
+if __name__ == "__main__":
+    main()
+
