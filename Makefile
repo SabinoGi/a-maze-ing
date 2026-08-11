@@ -1,20 +1,26 @@
 PYTHON = python3
+VENV = .venv
+PIP = $(VENV)/bin/pip
+PYTHON_VENV = $(VENV)/bin/python
 
 install:
-	$(PYTHON) -m pip install -i requirements.txt
+	$(PYTHON) -m venv $(VENV)
+	$(PIP) install -r requirements.txt
 
 run:
-	$(PYTHON) main.py
+	$(PYTHON_VENV) main.py
 
 debug:
-	$(PYTHON) -m pdb main.py
+	$(PYTHON_VENV) -m pdb main.py
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 
 lint:
-	flake8 .
-
-lint-strict:
-	flake8 --select=E, F .
+	$(VENV)/bin/flake8 . && $(VENV)/bin/mypy . \
+		--warn-return-any \
+		--warn-unused-ignores \
+		--ignore-missing-imports \
+		--disallow-untyped-defs \
+		--check-untyped-defs
