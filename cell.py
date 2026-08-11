@@ -31,7 +31,7 @@ class Grid():
             for r in range(rows)
         ]
 
-    def get_cell(self, row, col):
+    def get_cell(self, row: int, col: int) -> Cell:
         return self.grid[row][col]
 
     def is_valid_pos(self, row: int, col: int) -> bool:
@@ -65,11 +65,48 @@ class Grid():
             cell_b.walls &= ~Wall.EAST
 
 
-####### class wal, cell -> cell.py
+class MazePacMan:
+    def __init__(self, grid: Grid, rng: random.Random) -> None:
+        self.grid = grid
+        self.rng = rng
+
+    def _is_dead_end(self, cell: Cell) -> bool:
+        close_walls = cell.walls.value.bit_count()
+        return close_walls >= 3
+
+    def _get_neighbors_to_open(self, cell: Cell) -> list[Cell]:
+        valid_neighbors: list[Cell] = []
+        directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+
+        for row_offset, col_offset in directions:
+            new_row = cell.row + row_offset
+            new_col = cell.col + col_offset
+
+            if self.grid.is_valid_pos(new_row, new_col):
+                neighbor = self.grid.get_cell(new_row, new_col)
+
+                if not neighbor.is_42:
+                    valid_neighbors.append(neighbor)
+
+        return valid_neighbors
+
+    def braid(self) -> None:
+        for row in range(self.grid.rows):
+            for col in range(self.grid.cols):
+                current_cell = self.grid.get_cell(row, col)
+                if current_cell.is_42:
+                    continue
+
+                if self._is_dead_end(current_cell):
+                    available_neighbors = self._get_neighbors_to_open(current_cell)
+
+                    if available_neighbors:
+                        selected_neighbor = self.rng.choice(available_neighbors)
+                        self.grid.connect(current_cell, selected_neighbor)
 
 
 class MazeBacktrack:
-    """Escava os caminhos do labirinto usando uma pilha e decisões claras em loop."""
+    """Carve out the paths of the maze using a stack."""
 
     def __init__(self, grid: Grid, rng: random.Random) -> None:
         self.grid = grid
@@ -78,8 +115,8 @@ class MazeBacktrack:
     def _get_free_neighbors(self, cell: Cell) -> list[Cell]:
         """Returns only the neighbors that have NOT yet been visited.."""
         free_neighbors: list[Cell] = []
-        
-        directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # Norte, Sul, Leste, Oest
+
+        directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
         for d_line, d_coluna in directions:
             new_row = cell.row + d_line
@@ -96,13 +133,11 @@ class MazeBacktrack:
     def carve(self, start_row: int, start_col: int) -> None:
         """Executes the main carving loop (Move Forward and Carve or Backtrack)."""
 
-        #Starting point
         start_cell = self.grid.get_cell(start_row, start_col)
         start_cell.visited = True
 
         stack: list[Cell] = [start_cell]
 
-        #Backtracking loop
         while len(stack) > 0:
             current_cell = stack[-1]
 
@@ -122,9 +157,9 @@ class MazeBacktrack:
 
 class Pattern42:
     """'42' visual pattern, end verif if grade is suffient."""
- 
+
     PATTERN: tuple[tuple[int, ...], ...] = (
-        (1, 0, 1, 0, 1, 1, 1),
+        (1, 0, 0, 0, 1, 1, 1),
         (1, 0, 1, 0, 0, 0, 1),
         (1, 1, 1, 0, 1, 1, 1),
         (0, 0, 1, 0, 1, 0, 0),
@@ -158,11 +193,11 @@ class Pattern42:
 
 
 class MazeGenerator:
-    """Lead orchestrator responsible for integrating the generation pipeline."""
+    """Lead orchestrator responsible for integrating the generation."""
     def __init__(
         self, rows: int, cols: int, entry: tuple[int, int],
-        exit: tuple[int, int], perfect: bool = False):
-        #seed: Optional[int] = None) -> None:
+        exit: tuple[int, int], perfect: bool,
+            seed: int | None = None) -> None:
 
         self.grid = Grid(rows, cols)
         self.entry = entry
@@ -171,9 +206,8 @@ class MazeGenerator:
         self.rng = random.Random(seed)
         self.pattern_applied = False
 
-
     def generate(self) -> None:
-        """Executa todo o pipeline de geração: padrão '42', escavação e (se aplicável) loops."""
+        """Executes generation:'42' pattern, excavation, and loops."""
 
         if Pattern42.can_fit(self.grid.rows, self.grid.cols):
             Pattern42.apply(self.grid)
@@ -185,72 +219,80 @@ class MazeGenerator:
         entry_col, entry_row = self.entry
         MazeBacktrack(self.grid, self.rng).carve(entry_row, entry_col)
 
-    #    if not self.perfect:
-    #        MazePacMan(self.grid, self.rng).braid()
+        if not self.perfect:
+            MazePacMan(self.grid, self.rng).braid()
 
-    #def get_walls_grid(self) -> list[list[int]]:
+    # def get_walls_grid(self) -> list[list[int]]:
     #    """Returns the grid as integers (0 to 15), each representing the closed walls."""
     #    return self.grid.as_int_matrix()
 
-    #def get_solution_path(self) -> list[str]:
-        """Returns the shortest path between the entrance and the exit."""
-        return MazeSolver(self.grid).shortest_path(self.entry, self.exit)
+    # def get_solution_path(self) -> list[str]:
+        # """Returns the shortest path between the entrance and the exit."""
+        # return MazeSolver(self.grid).shortest_path(self.entry, self.exit)
 
 
+def show_maze(grid):
+    for row in range(grid.rows):
 
-#def show_maze(grid):
-#    for row in range(grid.rows):
+        # Linha superior
+        for col in range(grid.cols):
+            cell = grid.get_cell(row, col)
 
-#        # Paredes de cima
-#        for col in range(grid.cols):
-#            cell = grid.get_cell(row, col)
+            if cell.walls & Wall.NORTH:
+                print("+---", end="")
+            else:
+                print("+   ", end="")
 
-#            if cell.walls & Wall.NORTH:
-#                print("+---", end="")
-#            else:
-#                print("+   ", end="")
+        print("+")
 
-#        print("+")
+        # Conteúdo + paredes laterais
+        for col in range(grid.cols):
+            cell = grid.get_cell(row, col)
 
-#        # Paredes laterais
-#        for col in range(grid.cols):
-#            cell = grid.get_cell(row, col)
+            if cell.walls & Wall.WEST:
+                print("|", end="")
+            else:
+                print(" ", end="")
 
-#            if cell.walls & Wall.WEST:
-#                print("|   ", end="")
-#            else:
-#                print("    ", end="")
+            if cell.is_42:
+                print("\033[41m   \033[0m", end="")
+            else:
+                print("   ", end="")
 
-#        # Parede direita da última célula
-#        cell = grid.get_cell(row, grid.cols - 1)
+        # Parede direita
+        cell = grid.get_cell(row, grid.cols - 1)
 
-#        if cell.walls & Wall.EAST:
-#            print("|")
-#        else:
-#            print()
+        if cell.walls & Wall.EAST:
+            print("|")
+        else:
+            print(" ")
 
-#    # Parede inferior
-#    for col in range(grid.cols):
-#        cell = grid.get_cell(grid.rows - 1, col)
+    # Linha inferior
+    for col in range(grid.cols):
+        cell = grid.get_cell(grid.rows - 1, col)
 
-#        if cell.walls & Wall.SOUTH:
-#            print("+---", end="")
-#        else:
-#            print("+   ", end="")
+        if cell.walls & Wall.SOUTH:
+            print("+---", end="")
+        else:
+            print("+   ", end="")
 
-#    print("+")
-
-
-#def main():
-#    grid = Grid(10, 14)
-
-#    rng = random.Random(100)
-
-#    backtrack = MazeBacktrack(grid, rng)
-#    backtrack.carve(0, 0)
-
-#    show_maze(grid)
+    print("+")
 
 
-#if __name__ == "__main__":
-#    main()
+def main():
+    generator = MazeGenerator(
+        rows=10,
+        cols=10,
+        entry=(0, 0),
+        exit=(9, 9),
+        perfect=True,
+        seed=None
+    )
+
+    generator.generate()
+
+    show_maze(generator.grid)
+
+
+if __name__ == "__main__":
+    main()
