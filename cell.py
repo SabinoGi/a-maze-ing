@@ -2,7 +2,10 @@ import random
 import typing
 from enum import IntFlag
 from collections import deque
+
 from pathlib import Path
+=======
+>>>>>>> 027146e (mazeresolver)
 
 
 class Wall(IntFlag):
@@ -15,7 +18,11 @@ class Wall(IntFlag):
 
 class Cell():
     """"A single cell of the labyrinth."""
+
     def __init__(self, row: int, col: int):
+=======
+    def __init__(self,row: int, col: int):
+>>>>>>> 027146e (mazeresolver)
         self.row = row
         self.col = col
         self.visited = False
@@ -74,6 +81,65 @@ class Grid():
     def walls_int(self) -> list[list[int]]:
         list_walls: list[list[int]] = []
 
+
+
+        for line in self.grid:
+            line_nbr: list[int] = []
+
+            for cell in line:
+                nbr_wall = cell.walls.value
+                line_nbr.append(nbr_wall)     
+
+            list_walls.append(line_nbr)
+        return list_walls
+
+
+class MazeSolver:
+    """Responsible for finding the shortest path between entry and exit using BFS."""
+
+    def __init__(self, grid: Grid) -> None:
+        self.grid = grid
+
+    def shortest_path(self, entry: tuple[int, int], exit: tuple[int, int]) -> list[str]:
+        """Calculates and returns the path as a list of letters ['N', 'E', 'S', 'W']."""
+
+        entry_col, entry_row = entry
+        exit_col, exit_row = exit
+
+        start_cell = self.grid.get_cell(entry_row, entry_col)
+        target_cell = self.grid.get_cell(exit_row, exit_col)
+
+        movements = [
+            (-1, 0, Wall.NORTH, 'N'),
+            (1, 0, Wall.SOUTH, 'S'),
+            (0, 1, Wall.EAST, 'E'),
+            (0, -1, Wall.WEST, 'W')
+        ]
+
+        queue = deque([(start_cell, [])])
+        visited = {start_cell}
+
+        while len(queue) > 0:
+            current_cell, current_path = queue.popleft()
+
+            if current_cell == target_cell:
+                return current_path
+
+            for row_delta, column_delta, blocking_wall, direction in movements:
+
+                if current_cell.has_wall(blocking_wall):
+                    continue
+
+                new_row = current_cell.row + row_delta
+                new_column = current_cell.col + column_delta
+
+                if self.grid.is_valid(new_row, new_column):
+                    neighbor = self.grid.get_cell(new_row, new_column)
+
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        new_path = current_path + [direction]
+                        queue.append((neighbor, new_path))
 
 
         for line in self.grid:
@@ -324,6 +390,7 @@ class MazeGenerator:
             MazePacMan(self.grid, self.rng).braid()
 
 
+
     def get_maze_data(self) -> tuple[list[list[int]], list[str]]:
         """
         Consolidates the wall matrix and the solution path into a single method.
@@ -339,6 +406,11 @@ class MazeGenerator:
     # def get_walls_grid(self) -> list[list[int]]:
     #    """Returns the grid as integers (0 to 15), each representing the closed walls."""
     #    return self.grid.as_int_matrix()
+=======
+    def get_walls_grid(self) -> list[list[int]]:
+        """Returns the grid as integers (0-15), each representing the closed walls."""
+        return self.grid.walls_int()
+>>>>>>> 027146e (mazeresolver)
 
     # def get_solution_path(self) -> list[str]:
         # """Returns the shortest path between the entrance and the exit."""
@@ -413,7 +485,7 @@ def show_maze(grid):
         # Linha superior
         for col in range(grid.cols):
             cell = grid.get_cell(row, col)
-=======
+
 # def main():
 #    grid = Grid(5, 5)
 
@@ -566,7 +638,7 @@ def main():
         rows=10,
         cols=10,
         entry=(0, 0),
-        exit=(9, 9),
+        exit=(10, 1),
         perfect=True,
         seed=None
     )
