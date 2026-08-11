@@ -75,6 +75,7 @@ class Grid():
         list_walls: list[list[int]] = []
 
 
+
         for line in self.grid:
             line_nbr: list[int] = []
 
@@ -136,6 +137,8 @@ class MazeSolver:
         return []
 
 
+=======
+>>>>>>> 243491e (mazebacktrack ok)
 class MazePacMan:
     def __init__(self, grid: Grid, rng: random.Random) -> None:
         self.grid = grid
@@ -145,7 +148,7 @@ class MazePacMan:
         close_walls = cell.walls.value.bit_count()
         return close_walls >= 3
 
-    def _get_neighbor_open(self, cell: Cell) -> list[Cell]:
+    def _get_neighbors_to_open(self, cell: Cell) -> list[Cell]:
         valid_neighbors: list[Cell] = []
         directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
@@ -169,6 +172,7 @@ class MazePacMan:
                     continue
 
                 if self._is_dead_end(current_cell):
+
                     available_neighbors = self._get_neighbor_open(current_cell)
 
                     if available_neighbors:
@@ -180,6 +184,15 @@ class MazePacMan:
 
 =======
 >>>>>>> b86f004 (new seed)
+=======
+                    available_neighbors = self._get_neighbors_to_open(current_cell)
+
+                    if available_neighbors:
+                        selected_neighbor = self.rng.choice(available_neighbors)
+                        self.grid.connect(current_cell, selected_neighbor)
+
+
+>>>>>>> 243491e (mazebacktrack ok)
 class MazeBacktrack:
     """Carve out the paths of the maze using a stack."""
 
@@ -550,12 +563,12 @@ def show_maze(grid):
 
 def main():
     generator = MazeGenerator(
-        rows=15,
-        cols=15,
+        rows=10,
+        cols=10,
         entry=(0, 0),
         exit=(9, 9),
         perfect=True,
-        seed=42
+        seed=None
     )
 
     generator.generate()
