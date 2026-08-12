@@ -94,10 +94,10 @@ class MazeSolver:
     def shortest_path(
             self, entry: tuple[int, int], exit: tuple[int, int]) -> list[str]:
         """Calculate & returns the path as list of letters 'N','E','S','W'."""
+        
+        entry_row, entry_col = entry
+        exit_row, exit_col = exit
 
-        entry_col, entry_row = entry
-        exit_col, exit_row = exit
-        # breakpoint()
         start_cell = self.grid.get_cell(entry_row, entry_col)
         target_cell = self.grid.get_cell(exit_row, exit_col)
 
@@ -275,8 +275,16 @@ class MazeGenerator:
             output_file: str = "maze.txt") -> None:
 
         self.grid = Grid(rows, cols)
+<<<<<<< HEAD:src/maze.py
         self.entry = entry
         self.exit = exit
+=======
+        self.entry_xy = entry
+        self.exit_xy = exit
+        self.entry = (entry[1], entry[0])
+        self.exit = (exit[1], exit[0])
+
+>>>>>>> f637046 (render ok):cell.py
         self.perfect = perfect
         self.rng = random.Random(seed)
         self.output_file = output_file
@@ -305,9 +313,13 @@ class MazeGenerator:
         """
         grid_maze = self.grid.walls_int()
 
+<<<<<<< HEAD:src/maze.py
         row = self.exit[0] - 1
         col = self.exit[1] - 1
         solution_path = MazeSolver(self.grid).shortest_path(self.entry, [row, col])
+=======
+        solution_path = MazeSolver(self.grid).shortest_path(self.entry, self.exit)
+>>>>>>> f637046 (render ok):cell.py
         return grid_maze, solution_path
 
     def write_file(self) -> None:
@@ -341,4 +353,156 @@ class MazeGenerator:
             f.write(f"{exit_x},{exit_y}\t\texit  (x,y)\n")
 
             path_string = "".join(solution_path)
+<<<<<<< HEAD:src/maze.py
             f.write(f"{path_string}\n")
+=======
+            f.write(f"{path_string}\n")
+
+
+#from maze_components import Grid, Wall
+
+class MazeRender:
+    """Responsible for rendering the maze in the terminal
+     using ASCII characters.."""
+    def __init__(self, grid: Grid) -> None:
+        self.grid = grid
+
+    def render(self) -> None:
+        """Displays the ASCII representation of the maze in the 
+        terminal with bold walls."""
+        BOLD = "\033[1m"
+        RED_BG = "\033[42m"
+        RESET = "\033[0m"
+
+        # Elementos visuais especiais
+        QUINA = f"{BOLD}■{RESET}"
+        TETO_PAREDE = f"{BOLD}━━━{RESET}"
+        LADO_PAREDE = f"{BOLD}┃{RESET}"
+        ESPACO_VAZIO = "   "
+
+        for row in range(self.grid.rows):
+
+            """Top row of cells"""
+            for col in range(self.grid.cols):
+                cell = self.grid.get_cell(row, col)
+
+                # Define o preenchimento superior da célula
+                traco_superior = TETO_PAREDE if cell.has_wall(Wall.NORTH) else ESPACO_VAZIO
+                print(f"{QUINA}{traco_superior}", end="")
+
+            print(QUINA)
+
+            """Cell contents + side walls (West and East)"""
+            for col in range(self.grid.cols):
+                cell = self.grid.get_cell(row, col)
+
+                """West Wall (Left)"""
+                borda_esquerda = LADO_PAREDE if cell.has_wall(Wall.WEST) else " "
+                print(borda_esquerda, end="")
+
+                """Internal fill (Red background if it is a '42' cell)"""
+                fundo_interno = f"{RED_BG}{ESPACO_VAZIO}{RESET}" if cell.is_42 else ESPACO_VAZIO
+                print(fundo_interno, end="")
+
+            """East Wall (Right) of the last column in the row"""
+            last_cell = self.grid.get_cell(row, self.grid.cols - 1)
+            borda_direita = LADO_PAREDE if last_cell.has_wall(Wall.EAST) else " "
+            print(borda_direita)
+
+        """Bottom line of the last row"""
+        for col in range(self.grid.cols):
+            last_row_cell = self.grid.get_cell(self.grid.rows - 1, col)
+
+            # Define o fechamento do chão
+            traco_inferior = TETO_PAREDE if last_row_cell.has_wall(Wall.SOUTH) else ESPACO_VAZIO
+            print(f"{QUINA}{traco_inferior}", end="")
+
+        print(QUINA)
+
+    def interaction(self) -> None:
+        """Gerencia o menu ou comandos interativos do usuário no terminal."""
+        print("\n--- Menu Interativo ---")
+        print("Pressione 'q' e Enter para sair.")
+
+        while True:
+            try:
+                comando = input("> ").strip().lower()
+                if comando in ("q", "quit", "exit"):
+                    print("Saindo...")
+                    break
+                else:
+                    print(f"Comando '{comando}' não reconhecido. Digite 'q' para sair.")
+            except (KeyboardInterrupt, EOFError):
+                print("\nEncerrando...")
+                break
+
+
+def show_maze(grid):
+    for row in range(grid.rows):
+
+        # Linha superior
+        for col in range(grid.cols):
+            cell = grid.get_cell(row, col)
+
+            if cell.walls & Wall.NORTH:
+                print("+---", end="")
+            else:
+                print("+   ", end="")
+
+        print("+")
+
+        # Conteúdo + paredes laterais
+        for col in range(grid.cols):
+            cell = grid.get_cell(row, col)
+
+            if cell.walls & Wall.WEST:
+                print("|", end="")
+            else:
+                print(" ", end="")
+
+            if cell.is_42:
+                print("\033[41m   \033[0m", end="")
+            else:
+                print("   ", end="")
+
+        # Parede direita
+        cell = grid.get_cell(row, grid.cols - 1)
+
+        if cell.walls & Wall.EAST:
+            print("|")
+        else:
+            print(" ")
+
+    # Linha inferior
+    for col in range(grid.cols):
+        cell = grid.get_cell(grid.rows - 1, col)
+
+        if cell.walls & Wall.SOUTH:
+            print("+---", end="")
+        else:
+            print("+   ", end="")
+
+    print("+")
+
+
+def main():
+    generator = MazeGenerator(
+        rows=10,
+        cols=10,
+        entry=(0, 0),
+        exit=(4, 4),
+        perfect=True,
+        seed=None,
+        output_file="maze.txt"
+    )
+
+    generator.generate()
+
+    generator.write_file()
+
+    MazeRender(generator.grid).render()
+
+
+if __name__ == "__main__":
+    main()
+>>>>>>> f637046 (render ok):cell.py
