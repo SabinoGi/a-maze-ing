@@ -361,128 +361,120 @@ class MazeGenerator:
 
 #from maze_components import Grid, Wall
 
+import os
+#from maze_components import Grid, Wall, MazeSolver
+
+
 class MazeRender:
-    """Responsible for rendering the maze in the terminal
-     using ASCII characters.."""
-    def __init__(self, grid: Grid) -> None:
-        self.grid = grid
+    """Renderiza o labirinto no terminal e gerencia o menu do usuário."""
+
+    def __init__(self, generator) -> None:
+        self.generator = generator
+        self.show_path = False
+        self.colors = ["\033[97m", "\033[94m", "\033[92m", "\033[93m", "\033[96m"]
+        self.color_idx = 0
 
     def render(self) -> None:
-        """Displays the ASCII representation of the maze in the 
-        terminal with bold walls."""
-        BOLD = "\033[1m"
-        RED_BG = "\033[42m"
-        RESET = "\033[0m"
+        grid = self.generator.grid
+        wall_color = self.colors[self.color_idx]
+        
+        # Estilos dos elementos
+        QUINA = f"\033[1m{wall_color}■\033[0m"
+        TETO = f"\033[1m{wall_color}━━━\033[0m"
+        PAREDE = f"\033[1m{wall_color}┃\033[0m"
+        VAZIO = "   "
+        
+        # Preenchimentos especiais
+        ENTRY_BG = "\033[45m   \033[0m"    # Rosa/Magenta
+        EXIT_BG = "\033[41m   \033[0m"     # Vermelho
+        PATH_BG = "\033[42m   \033[0m"     # Verde
+        PATTERN_BG = "\033[47m   \033[0m"  # Cinza ('42')
 
-        # Elementos visuais especiais
-        QUINA = f"{BOLD}■{RESET}"
-        TETO_PAREDE = f"{BOLD}━━━{RESET}"
-        LADO_PAREDE = f"{BOLD}┃{RESET}"
-        ESPACO_VAZIO = "   "
+        # Obtém os passos da solução apenas se a opção estiver ativada
+        path_positions = set()
+        if self.show_path:
+            path_str = MazeSolver(grid).shortest_path(self.generator.entry, self.generator.exit)
+            r, c = self.generator.entry
+            path_positions.add((r, c))
+            deltas = {'N': (-1, 0), 'S': (1, 0), 'E': (0, 1), 'W': (0, -1)}
+            for move in path_str:
+                dr, dc = deltas[move]
+                r, c = r + dr, c + dc
+                path_positions.add((r, c))
 
-        for row in range(self.grid.rows):
-
-            """Top row of cells"""
-            for col in range(self.grid.cols):
-                cell = self.grid.get_cell(row, col)
-
-                # Define o preenchimento superior da célula
-                traco_superior = TETO_PAREDE if cell.has_wall(Wall.NORTH) else ESPACO_VAZIO
-                print(f"{QUINA}{traco_superior}", end="")
-
+        # Desenho do labirinto
+        for row in range(grid.rows):
+            # 1. Linha superior
+            for col in range(grid.cols):
+                cell = grid.get_cell(row, col)
+                top = TETO if cell.has_wall(Wall.NORTH) else VAZIO
+                print(f"{QUINA}{top}", end="")
             print(QUINA)
 
-            """Cell contents + side walls (West and East)"""
-            for col in range(self.grid.cols):
-                cell = self.grid.get_cell(row, col)
+            # 2. Conteúdo central e paredes laterais
+            for col in range(grid.cols):
+                cell = grid.get_cell(row, col)
+                left = PAREDE if cell.has_wall(Wall.WEST) else " "
+                
+                # Define a cor de fundo da célula
+                pos = (row, col)
+                if pos == self.generator.entry:
+                    content = ENTRY_BG
+                elif pos == self.generator.exit:
+                    content = EXIT_BG
+                elif cell.is_42:
+                    content = PATTERN_BG
+                elif pos in path_positions:
+                    content = PATH_BG
+                else:
+                    content = VAZIO
 
-                """West Wall (Left)"""
-                borda_esquerda = LADO_PAREDE if cell.has_wall(Wall.WEST) else " "
-                print(borda_esquerda, end="")
+                print(f"{left}{content}", end="")
 
-                """Internal fill (Red background if it is a '42' cell)"""
-                fundo_interno = f"{RED_BG}{ESPACO_VAZIO}{RESET}" if cell.is_42 else ESPACO_VAZIO
-                print(fundo_interno, end="")
+            # Parede Leste da última coluna
+            last_cell = grid.get_cell(row, grid.cols - 1)
+            right = PAREDE if last_cell.has_wall(Wall.EAST) else " "
+            print(right)
 
-            """East Wall (Right) of the last column in the row"""
-            last_cell = self.grid.get_cell(row, self.grid.cols - 1)
-            borda_direita = LADO_PAREDE if last_cell.has_wall(Wall.EAST) else " "
-            print(borda_direita)
-
-        """Bottom line of the last row"""
-        for col in range(self.grid.cols):
-            last_row_cell = self.grid.get_cell(self.grid.rows - 1, col)
-
-            # Define o fechamento do chão
-            traco_inferior = TETO_PAREDE if last_row_cell.has_wall(Wall.SOUTH) else ESPACO_VAZIO
-            print(f"{QUINA}{traco_inferior}", end="")
-
+        # 3. Linha inferior da última fileira
+        for col in range(grid.cols):
+            cell = grid.get_cell(grid.rows - 1, col)
+            bottom = TETO if cell.has_wall(Wall.SOUTH) else VAZIO
+            print(f"{QUINA}{bottom}", end="")
         print(QUINA)
 
-    def interaction(self) -> None:
-        """Gerencia o menu ou comandos interativos do usuário no terminal."""
-        print("\n--- Menu Interativo ---")
-        print("Pressione 'q' e Enter para sair.")
+        return self
 
+    def interaction(self) -> None:
+        """Exibe o menu sem módulos externos."""
         while True:
+            print("\n=== A-Maze-ing ===")
+            print("1. Re-generate a new maze")
+            print("2. Show / Hide the shortest path")
+            print("3. Rotate the wall colours")
+            print("4. Quit")
+
             try:
-                comando = input("> ").strip().lower()
-                if comando in ("q", "quit", "exit"):
-                    print("Saindo...")
+                choice = input("\033[92mChoice? (1-4): \033[0m").strip()
+
+                if choice == "1":
+                    self.generator.generate()
+                    self.generator.write_file()
+                elif choice == "2":
+                    self.show_path = not self.show_path
+                elif choice == "3":
+                    self.color_idx = (self.color_idx + 1) % len(self.colors)
+                elif choice == "4":
                     break
                 else:
-                    print(f"Comando '{comando}' não reconhecido. Digite 'q' para sair.")
+                    continue
+
+                # Limpa a tela usando apenas ANSI (sem os ou subprocess)
+                print("\033[H\033[2J", end="")
+                self.render()
+
             except (KeyboardInterrupt, EOFError):
-                print("\nEncerrando...")
                 break
-
-
-def show_maze(grid):
-    for row in range(grid.rows):
-
-        # Linha superior
-        for col in range(grid.cols):
-            cell = grid.get_cell(row, col)
-
-            if cell.walls & Wall.NORTH:
-                print("+---", end="")
-            else:
-                print("+   ", end="")
-
-        print("+")
-
-        # Conteúdo + paredes laterais
-        for col in range(grid.cols):
-            cell = grid.get_cell(row, col)
-
-            if cell.walls & Wall.WEST:
-                print("|", end="")
-            else:
-                print(" ", end="")
-
-            if cell.is_42:
-                print("\033[41m   \033[0m", end="")
-            else:
-                print("   ", end="")
-
-        # Parede direita
-        cell = grid.get_cell(row, grid.cols - 1)
-
-        if cell.walls & Wall.EAST:
-            print("|")
-        else:
-            print(" ")
-
-    # Linha inferior
-    for col in range(grid.cols):
-        cell = grid.get_cell(grid.rows - 1, col)
-
-        if cell.walls & Wall.SOUTH:
-            print("+---", end="")
-        else:
-            print("+   ", end="")
-
-    print("+")
 
 
 def main():
@@ -500,8 +492,9 @@ def main():
 
     generator.write_file()
 
-    MazeRender(generator.grid).render()
-
+    render = MazeRender(generator)
+    render.render()
+    render.interaction()
 
 if __name__ == "__main__":
     main()
