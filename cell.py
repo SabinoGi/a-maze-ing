@@ -2,6 +2,7 @@ import random
 import typing
 from enum import IntFlag
 from collections import deque
+from pathlib import Path
 
 from pathlib import Path
 
@@ -366,12 +367,15 @@ class MazeGenerator:
             seed: int | None = None, 
             output_file: str = "maze.txt") -> None:
 
+
         exit: tuple[int, int], perfect: bool = False,
 =======
         exit: tuple[int, int], perfect: bool,
 
             seed: int | None = None) -> None:
 >>>>>>> b86f004 (new seed)
+=======
+>>>>>>> 3db82f3 (mageGener ok)
 
         self.grid = Grid(rows, cols)
         self.entry = entry
@@ -399,12 +403,15 @@ class MazeGenerator:
 
 
 
+=======
+>>>>>>> 3db82f3 (mageGener ok)
     def get_maze_data(self) -> tuple[list[list[int]], list[str]]:
         """
         Consolidates the wall matrix and the solution path into a single method.
         Returns: (matrix_of_integers, list_of_directions)
         """
         grid_maze = self.grid.walls_int()
+
 
         row = self.exit[0] - 1
         col = self.exit[1] - 1
@@ -458,12 +465,48 @@ class MazeGenerator:
 
             path_string = "".join(solution_path)
             f.write(f"{path_string}\n")
-=======
+
     def get_solution_path(self) -> list[str]:
         """Returns the shortest path between the entrance and the exit."""
+
+
         row = self.exit[0] - 1
         col = self.exit[1] - 1
-        return MazeSolver(self.grid).shortest_path(self.entry, [row, col])
+        solution_path = MazeSolver(self.grid).shortest_path(self.entry, [row, col])
+        return grid_maze, solution_path
+
+    def write_file(self) -> None:
+        """
+        Gets the maze and solution data and writes it to the file in the exact format specified:
+        - Walls in hexadecimal format (0-f), one row per line
+        - Blank line
+        - Entry and exit coordinates
+        - Continuous string representing the solution path
+        """
+        path_file = Path(self.output_file if self.output_file else "maze.txt")
+
+        # 2. Cria a pasta pai caso tenha sido passado algo como "saidas/meu_labirinto.txt"
+        if path_file.parent:
+            path_file.parent.mkdir(parents=True, exist_ok=True)
+
+        grid_matrix, solution_path = self.get_maze_data()
+
+        with open(path_file, "w", encoding="utf-8") as f:
+
+            for row in grid_matrix:
+                row_hex = "".join(f"{value:x}" for value in row)
+                f.write(f"{row_hex}\n")
+
+            f.write("\n")
+
+            entry_x, entry_y = self.entry
+            exit_x, exit_y = self.exit
+
+            f.write(f"{entry_x},{entry_y}\t\tentry (x,y)\n")
+            f.write(f"{exit_x},{exit_y}\t\texit  (x,y)\n")
+
+            path_string = "".join(solution_path)
+            f.write(f"{path_string}\n")
 
 
 class MazeRenderer:
@@ -676,17 +719,15 @@ def main():
         rows=20,
         cols=20,
         entry=(1, 1),
-        exit=(10, 10),
+        exit=(19, 14),
         perfect=True,
-        seed=42
+        seed=42,
+        output_file="out_maze.txt"
     )
 
     generator.generate()
 
-    out_maze = generator.get_walls_grid()
-
-    file: str = "maze.txt"
-    MazeRenderer.export(out_maze, file)
+    generator.write_file()
 
     # show_maze(generator.grid)
 
