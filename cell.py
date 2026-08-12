@@ -477,7 +477,8 @@ class MazeGenerator:
 
     def write_file(self) -> None:
         """
-        Gets the maze and solution data and writes it to the file in the exact format specified:
+        Gets the maze and solution data and writes it to the
+         file in the exact format specified:
         - Walls in hexadecimal format (0-f), one row per line
         - Blank line
         - Entry and exit coordinates
@@ -485,7 +486,6 @@ class MazeGenerator:
         """
         path_file = Path(self.output_file if self.output_file else "maze.txt")
 
-        # 2. Cria a pasta pai caso tenha sido passado algo como "saidas/meu_labirinto.txt"
         if path_file.parent:
             path_file.parent.mkdir(parents=True, exist_ok=True)
 
