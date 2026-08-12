@@ -15,10 +15,28 @@ def main():
 
     generator.generate()
 
+
     renderer = MazeRenderer(generator.grid)
     renderer.show()
     renderer.export("out_maze.txt")
 
 
+=======
+    #  Criar o gerador e gerar o labirnto
+    generator = MazeGenerator(config).generate()
+
+    generator_maze = generator.get_walls_grid()
+
+    #  Salvar o labirinto em arquivo (.txt)
+    MazeRenderer.export(generator_maze, "maze.txt")
+
+    # Exibir o labirinto
+    renderer = MazeRenderer(generator.grid).render()
+
+    # Interação com o usuário
+    renderer.interaction()
+
+ 
+>>>>>>> ce88bdf (render loadinhg)
 if __name__ == "__main__":
     main()
