@@ -1,33 +1,24 @@
-# aqui criar  os modulos para ser importado
-#  conteduo do modulo.py 6 e 9
-
-from parser.config_parser import ConfigParser
-from generator.maze_generator import MazeGenerator
-from renderer.maze_renderer import MazeRenderer
+from src.maze import MazeGenerator
+from src.renderer import MazeRenderer
 
 
 def main():
+    generator = MazeGenerator(
+        rows=20,
+        cols=20,
+        entry=(1, 1),
+        exit=(19, 14),
+        perfect=True,
+        seed=42,
+        output_file="out_maze.txt"
+    )
 
-    # Ler e validar o arquivo de configuração
-    parser = ConfigParser("config.txt")
-    config = parser.parse()
+    generator.generate()
 
-    #  Criar o gerador
-    generator = MazeGenerator(config)
+    renderer = MazeRenderer(generator.grid)
+    renderer.show()
+    renderer.export("out_maze.txt")
 
-    # Gerar o labirinto
-    maze = generator.generate()
 
-    #  Salvar o labirinto em arquivo (.txt)
-    MazeRenderer.export(maze, "maze.txt")
-
-    # Exibir o labirinto
-    renderer = MazeRenderer(maze)
-    renderer.render()
-
-    # Interação com o usuário
-    renderer.interaction()
-
- 
 if __name__ == "__main__":
     main()

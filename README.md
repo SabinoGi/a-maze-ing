@@ -135,10 +135,44 @@ We chose backtracking because:
 
 The project is divided into independent components that can be imported and reused:
 
-- `ConfigParser` can be used to read and validate maze configuration files independently from the generator.
+- `ConfigParser` can read and validate maze configuration files independently from the generator.
 - `Grid` and `Cell` provide a reusable representation of a maze.
-- `MazeGenerator` can generate a maze from different dimensions, entry and exit positions, `PERFECT` modes, and seeds.
-- `MazeRenderer` is separated from the generation logic, allowing the maze to be displayed using a different interface without modifying the generator.
+- `MazeGenerator` generates mazes from custom dimensions, entry and exit positions, `PERFECT` mode, and seeds.
+- `MazeRenderer` is separated from the generation logic, allowing the generated maze to be displayed using a different interface.
+
+### Reusable Maze Generator
+
+The maze generation logic is provided as a reusable Python package called
+`mazegen-lsantann`.
+
+The package can be built from the project sources and installed using the generated wheel:
+
+```bash
+python -m build
+pip install dist/mazegen_lsantann-1.0.0-py3-none-any.whl
+```
+
+### Basic usage
+
+```text
+from src.maze import MazeGenerator
+from src.renderer import MazeRenderer
+
+generator = MazeGenerator(
+    rows=20,
+    cols=20,
+    entry=(1, 1),
+    exit=(19, 14),
+    perfect=True,
+    seed=42,
+    output_file="out_maze.txt"
+)
+
+generator.generate()
+
+renderer = MazeRenderer(generator.grid)
+renderer.show()
+```
 
 ### Development Tools
 
@@ -160,8 +194,8 @@ The following tools were used during development:
 
 At the beginning of the project, we divided the project into independent responsibilities:
 
-- **Giovanna:** maze architecture, generation algorithm, and rendering.
-- **Luciano:** configuration parsing, Makefile, development environment, and documentation.
+- **Giovanna:** maze architecture, generation algorithm and rendering.
+- **Luciano:** configuration parsing, Makefile, distribution package and documentation.
 
 The initial plan was to develop these components independently and integrate them through `main.py`.
 
