@@ -1,5 +1,5 @@
 import random
-from maze import Grid, Cell, Wall
+from .maze import Grid, Cell, Wall
 
 
 class MazeBacktrack:

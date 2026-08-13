@@ -99,9 +99,3 @@ class ConfigParser:
         """Executa a leitura e a validação em sequência."""
         pre_config = self.file_reader()
         return self.validator(pre_config)
-
-
-if __name__ == "__main__":
-    parser = ConfigParser("config.txt")
-    config = parser.parse()
-    print(config)

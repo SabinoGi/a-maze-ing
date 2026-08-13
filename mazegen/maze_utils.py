@@ -1,4 +1,4 @@
-from maze import Grid, Wall, Cell
+from .maze import Grid, Wall, Cell
 from collections import deque
 
 

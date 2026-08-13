@@ -24,7 +24,7 @@ class MazeRender:
         """Special fills"""
         ENTRY_BG = "\033[45m   \033[0m"    # Rosa/Magenta
         EXIT_BG = "\033[41m   \033[0m"     # Vermelho
-        PATH_BG = "\033[42m   \033[0m"     # Verde
+        PATH_BG = "\033[44m   \033[0m"     # Verde
         PATTERN_BG = "\033[47m   \033[0m"  # Cinza ('42')
 
         """Obtains the solution steps only if the option is enabled."""

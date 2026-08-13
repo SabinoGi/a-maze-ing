@@ -1,9 +1,9 @@
 import sys
 import random
-from maze import Grid
 from pathlib import Path
-from maze_utils import Pattern42, MazeSolver
-from maze_backtrack import MazeBacktrack, MazePacMan
+from .maze import Grid
+from .maze_utils import Pattern42, MazeSolver
+from .maze_backtrack import MazeBacktrack, MazePacMan
 
 
 class MazeGenerator:
@@ -16,8 +16,8 @@ class MazeGenerator:
         entry: tuple[int, int],
         exit: tuple[int, int],
         perfect: bool,
-        seed: int | None = None,
-        output_file: str = "maze.txt"
+        output_file: str = "maze.txt",
+        seed: int | None = None
     ) -> None:
 
         errors = []
