@@ -1,4 +1,5 @@
 import random
+import sys
 from enum import IntFlag
 from collections import deque
 from pathlib import Path
@@ -330,11 +331,18 @@ class Pattern42:
 
 class MazeGenerator:
     """Lead orchestrator responsible for integrating the generation."""
+
     def __init__(
-        self, rows: int, cols: int, entry: tuple[int, int],
-        exit: tuple[int, int], perfect: bool,
-            seed: int | None = None,
-            output_file: str = "maze.txt") -> None:
+        self,
+        rows: int,
+        cols: int,
+        entry: tuple[int, int],
+        exit: tuple[int, int],
+        perfect: bool,
+        seed: int | None = None,
+        output_file: str = "maze.txt"
+    ) -> None:
+
 
         self.rows = rows
         self.cols = cols
@@ -354,6 +362,44 @@ class MazeGenerator:
         self.rng = random.Random(seed)
         self.output_file = output_file
         self.pattern_applied = False
+=======
+        errors = []
+        if rows <= 0:
+            errors.append("Rows must be greater than 0")
+        if cols <= 0:
+            errors.append("Cols must be greater than 0")
+        if not (0 <= entry[0] < cols and 0 <= entry[1] < rows):
+            errors.append("Invalid entry position")
+        if not (0 <= exit[0] < cols and 0 <= exit[1] < rows):
+            errors.append("Invalid exit position")
+        if entry == exit:
+            errors.append("Entry and exit must be different")
+        if not isinstance(perfect, bool):
+            errors.append("Perfect must be a boolean")
+        if seed is not None and not isinstance(seed, int):
+            errors.append("Seed must be an integer or None")
+        if not isinstance(output_file, str):
+            errors.append("Output file must be a non-empty string")
+        try:
+            if len(errors) > 0:
+                raise ValueError(errors)
+            self.rows = rows
+            self.cols = cols
+            self.seed = seed
+            self.grid = Grid(rows, cols)
+            self.entry_xy = entry
+            self.exit_xy = exit
+            self.entry = (entry[1], entry[0])
+            self.exit = (exit[1], exit[0])
+            self.perfect = perfect
+            self.rng = random.Random(seed)
+            self.output_file = output_file
+            self.pattern_applied = False
+        except ValueError as e:
+            for error in e.args[0]:
+                print(f"Error: {error}")
+            sys.exit(1)
+>>>>>>> ae24835 (parse interno classe Magenerator):cell.py
 
     def generate(self) -> None:
         """Executes generation:'42' pattern, excavation, and loops."""
@@ -561,7 +607,7 @@ def main() -> None:
         exit=(9, 9),
         perfect=True,
         seed=None,
-        output_file="out_maze.txt"
+        output_file=""
     )
 
     generator.generate()
