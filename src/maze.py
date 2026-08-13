@@ -78,7 +78,7 @@ class Grid():
 
             for cell in line:
                 nbr_wall = cell.walls.value
-                line_nbr.append(nbr_wall)     
+                line_nbr.append(nbr_wall)
 
             list_walls.append(line_nbr)
         return list_walls
@@ -93,7 +93,7 @@ class MazeSolver:
     def shortest_path(
             self, entry: tuple[int, int], exit: tuple[int, int]) -> list[str]:
         """Calculate & returns the path as list of letters 'N','E','S','W'."""
-        
+
         entry_row, entry_col = entry
         exit_row, exit_col = exit
 
@@ -107,7 +107,7 @@ class MazeSolver:
             (0, -1, Wall.WEST, 'W')
         ]
 
-        queue = deque([(start_cell, [])])
+        queue: deque[tuple[Cell, list[str]]] = deque([(start_cell, [])])
         visited = {start_cell}
         while len(queue) > 0:
             current_cell, current_path = queue.popleft()
@@ -139,9 +139,16 @@ class MazePacMan:
         self.grid = grid
         self.rng = rng
 
+
     def _is_dead_end(self, cell: Cell) -> bool:
         close_walls = cell.walls.value.bit_count()
         return close_walls >= 3
+=======
+    def _is_dead_end(self) -> list[Cell]:
+        """Identifies cells with 3 or 4 closed
+        walls that are NOT part of the '42' pattern."""
+        dead_ends: list[Cell] = []
+>>>>>>> 472ef92 (flak8 end mypy --strict ok):cell.py
 
     def _get_neighbor_open(self, cell: Cell) -> list[Cell]:
         valid_neighbors: list[Cell] = []
@@ -166,6 +173,7 @@ class MazePacMan:
                 if current_cell.is_42:
                     continue
 
+
                 if self._is_dead_end(current_cell):
                     available_neighbors = self._get_neighbor_open(current_cell)
 
@@ -174,6 +182,61 @@ class MazePacMan:
                             available_neighbors)
 
                         self.grid.connect(current_cell, selected_neighbor)
+=======
+                closed_walls = cell.walls.value.bit_count()
+                if closed_walls >= 3:
+                    dead_ends.append(cell)
+
+        return dead_ends
+
+    def _get_closed_neighbors(self, cell: Cell) -> list[Cell]:
+        """Returns neighbors separated by a
+        CLOSED WALL that do not match the '42' pattern."""
+        closed_neighbors: list[Cell] = []
+
+        directions = [
+            (-1, 0, Wall.NORTH),
+            (1, 0, Wall.SOUTH),
+            (0, 1, Wall.EAST),
+            (0, -1, Wall.WEST)
+        ]
+
+        for dr, dc, wall_dir in directions:
+            nr, nc = cell.row + dr, cell.col + dc
+
+            if self.grid.is_valid_pos(nr, nc):
+                neighbor = self.grid.get_cell(nr, nc)
+
+                if not neighbor.is_42 and cell.has_wall(wall_dir):
+                    closed_neighbors.append(neighbor)
+
+        return closed_neighbors
+
+    def braid(self, max_dead_ends_tolerated: int = 2) -> None:
+        """Iteratively remove dead ends until the tolerance is reached."""
+        while True:
+            dead_ends = self._is_dead_end()
+
+            if len(dead_ends) <= max_dead_ends_tolerated:
+                break
+
+            self.rng.shuffle(dead_ends)
+            removed_any = False
+
+            for cell in dead_ends:
+                if cell.walls.value.bit_count() < 3:
+                    continue
+
+                neighbors = self._get_closed_neighbors(cell)
+                if neighbors:
+                    selected_neighbor = self.rng.choice(neighbors)
+
+                    self.grid.connect(cell, selected_neighbor)
+                    removed_any = True
+
+            if not removed_any:
+                break
+>>>>>>> 472ef92 (flak8 end mypy --strict ok):cell.py
 
 
 class MazeBacktrack:
@@ -373,7 +436,8 @@ class MazeRender:
     def __init__(self, generator: MazeGenerator) -> None:
         self.generator = generator
         self.show_path = False
-        self.colors = ["\033[97m", "\033[94m", "\033[92m", "\033[93m", "\033[96m"]
+        self.colors = [
+            "\033[97m", "\033[94m", "\033[92m", "\033[93m", "\033[96m"]
         self.color_idx = 0
 
     def render(self) -> None:
@@ -419,7 +483,7 @@ class MazeRender:
             for col in range(grid.cols):
                 cell = grid.get_cell(row, col)
                 left = PAREDE if cell.has_wall(Wall.WEST) else " "
-            
+
                 # Define a cor de fundo da célula
                 pos = (row, col)
                 if pos == self.generator.entry:
@@ -446,8 +510,6 @@ class MazeRender:
             bottom = TETO if cell.has_wall(Wall.SOUTH) else VAZIO
             print(f"{QUINA}{bottom}", end="")
         print(QUINA)
-
-        return self
 
     def interaction(self) -> None:
         """Exibe o menu sem módulos externos."""
@@ -491,7 +553,7 @@ class MazeRender:
                 break
 
 
-def main():
+def main() -> None:
     generator = MazeGenerator(
         rows=10,
         cols=10,
@@ -505,7 +567,7 @@ def main():
     generator.generate()
 
     generator.write_file()
-    # breakpoint()
+
     render = MazeRender(generator)
     render.render()
     render.interaction()
