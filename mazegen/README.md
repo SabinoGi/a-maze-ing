@@ -66,7 +66,6 @@ USAGE EXAMPLE
                 perfect=True,
                 seed=42,
                 output_file="maze.txt",
-                seed=None
             )
 
             generator.generate()

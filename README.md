@@ -147,15 +147,67 @@ The project is divided into independent components that can be imported and reus
 
 ### Reusable Maze Generator
 
-The maze generation logic is provided as a reusable Python package called
-`mazegen-info`.
+This project embeds the core generation logic into a standalone, reusable Python package named `mazegen-*`.
 
-The package can be built from the project sources and installed using the generated wheel:
+### Prerequisites
+Ensure you are in a Python virtual environment (`venv`) with Python 3.10+:
 
 ```bash
-python -m build
-pip install dist/mazegen_lsantann-1.0.0-py3-none-any.whl
+python3 -m venv venv
+source venv/bin/activate
+
+pip install build
+python3 -m build
 ```
+
+This will generate two archive files in the dist/ folder:
+
+    A Source Distribution: dist/mazegen_login-1.0.0.tar.gz
+    A Built Distribution (Wheel): dist/mazegen_login-1.0.0-py3-none-any.whl
+
+
+Unpacking/installing and using the `.whl` file
+
+The `.whl` (Wheel) file is the standard distribution format for Python. You do not need to "unzip" it like a regular ZIP file to use it; `pip` itself handles extracting and registering the package in your Python environment.
+
+### Step 1: Install the `.whl` file in a new environment or project
+Suppose you are working on a different project or want to test a clean installation:
+
+```bash
+python3 -m venv venv
+
+source venv/bin/activate
+```
+```bash
+pip install mazegen-1.0.0-py3-none-any.whl
+```
+For uninstall 
+
+```bash
+pip uninstall mazegen -y
+```
+For deactivate venv 
+
+```bash
+deactivate
+```
+
+Test whether the package was installed
+```bash
+pip list | grep mazegen
+```
+
+Manual inspection of the .whl content
+
+```bash
+unzip mazegen-1.0.0-py3-none-any.whl -d inspeção_pacote
+```
+
+Notas:
+If the import isn't recognizing `mazegen`, check your development environment.
+
+
+
 
 ### Basic usage
 
