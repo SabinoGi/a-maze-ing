@@ -1,5 +1,4 @@
 import random
-import typing
 from enum import IntFlag
 from collections import deque
 from pathlib import Path
@@ -271,11 +270,14 @@ class MazeGenerator:
     def __init__(
         self, rows: int, cols: int, entry: tuple[int, int],
         exit: tuple[int, int], perfect: bool,
-            seed: int | None = None, 
+            seed: int | None = None,
             output_file: str = "maze.txt") -> None:
 
+        self.rows = rows
+        self.cols = cols
+        self.seed = seed
         self.grid = Grid(rows, cols)
-<<<<<<< HEAD:src/maze.py
+
         self.entry = entry
         self.exit = exit
 =======
@@ -292,6 +294,10 @@ class MazeGenerator:
 
     def generate(self) -> None:
         """Executes generation:'42' pattern, excavation, and loops."""
+        self.grid = Grid(self.rows, self.cols)
+
+        if self.seed is None:
+            self.rng = random.Random(None)
 
         if Pattern42.can_fit(self.grid.rows, self.grid.cols):
             Pattern42.apply(self.grid)
@@ -308,18 +314,20 @@ class MazeGenerator:
 
     def get_maze_data(self) -> tuple[list[list[int]], list[str]]:
         """
-        Consolidates the wall matrix and the solution path into a single method.
-        Returns: (matrix_of_integers, list_of_directions)
+        Consolidates the wall matrix and the solution path into
+          a single method. Returns: (matrix_of_integers, list_of_directions)
         """
         grid_maze = self.grid.walls_int()
 
-<<<<<<< HEAD:src/maze.py
+
         row = self.exit[0] - 1
         col = self.exit[1] - 1
         solution_path = MazeSolver(self.grid).shortest_path(self.entry, [row, col])
 =======
         solution_path = MazeSolver(self.grid).shortest_path(self.entry, self.exit)
->>>>>>> f637046 (render ok):cell.py
+
+        solution_path = MazeSolver(self.grid).shortest_path(
+            self.entry, self.exit)
         return grid_maze, solution_path
 
     def write_file(self) -> None:
@@ -353,22 +361,16 @@ class MazeGenerator:
             f.write(f"{exit_x},{exit_y}\t\texit  (x,y)\n")
 
             path_string = "".join(solution_path)
-<<<<<<< HEAD:src/maze.py
+
             f.write(f"{path_string}\n")
 =======
             f.write(f"{path_string}\n")
 
 
-#from maze_components import Grid, Wall
-
-import os
-#from maze_components import Grid, Wall, MazeSolver
-
-
 class MazeRender:
     """Renderiza o labirinto no terminal e gerencia o menu do usuário."""
 
-    def __init__(self, generator) -> None:
+    def __init__(self, generator: MazeGenerator) -> None:
         self.generator = generator
         self.show_path = False
         self.colors = ["\033[97m", "\033[94m", "\033[92m", "\033[93m", "\033[96m"]
@@ -377,13 +379,13 @@ class MazeRender:
     def render(self) -> None:
         grid = self.generator.grid
         wall_color = self.colors[self.color_idx]
-        
+
         # Estilos dos elementos
         QUINA = f"\033[1m{wall_color}■\033[0m"
         TETO = f"\033[1m{wall_color}━━━\033[0m"
         PAREDE = f"\033[1m{wall_color}┃\033[0m"
         VAZIO = "   "
-        
+
         # Preenchimentos especiais
         ENTRY_BG = "\033[45m   \033[0m"    # Rosa/Magenta
         EXIT_BG = "\033[41m   \033[0m"     # Vermelho
@@ -393,7 +395,9 @@ class MazeRender:
         # Obtém os passos da solução apenas se a opção estiver ativada
         path_positions = set()
         if self.show_path:
-            path_str = MazeSolver(grid).shortest_path(self.generator.entry, self.generator.exit)
+            path_str = MazeSolver(grid).shortest_path(
+                self.generator.entry, self.generator.exit)
+
             r, c = self.generator.entry
             path_positions.add((r, c))
             deltas = {'N': (-1, 0), 'S': (1, 0), 'E': (0, 1), 'W': (0, -1)}
@@ -415,7 +419,7 @@ class MazeRender:
             for col in range(grid.cols):
                 cell = grid.get_cell(row, col)
                 left = PAREDE if cell.has_wall(Wall.WEST) else " "
-                
+            
                 # Define a cor de fundo da célula
                 pos = (row, col)
                 if pos == self.generator.entry:
@@ -447,7 +451,19 @@ class MazeRender:
 
     def interaction(self) -> None:
         """Exibe o menu sem módulos externos."""
+        error_msg = ""
+
         while True:
+            # 1. Limpa o terminal e renderiza o labirinto atual
+            print("\033[H\033[2J", end="")
+            self.render()
+
+            # 2. Se houver erro de digitação anterior, exibe agora
+            if error_msg:
+                print(f"\n\033[91m{error_msg}\033[0m")
+                error_msg = ""
+
+            # 3. Exibe o menu
             print("\n=== A-Maze-ing ===")
             print("1. Re-generate a new maze")
             print("2. Show / Hide the shortest path")
@@ -458,8 +474,10 @@ class MazeRender:
                 choice = input("\033[92mChoice? (1-4): \033[0m").strip()
 
                 if choice == "1":
+                    # Cria novo labirinto na memória e salva no arquivo
                     self.generator.generate()
                     self.generator.write_file()
+                    # Na próxima volta do loop, render() desenhará o NOVO grid
                 elif choice == "2":
                     self.show_path = not self.show_path
                 elif choice == "3":
@@ -467,11 +485,7 @@ class MazeRender:
                 elif choice == "4":
                     break
                 else:
-                    continue
-
-                # Limpa a tela usando apenas ANSI (sem os ou subprocess)
-                print("\033[H\033[2J", end="")
-                self.render()
+                    error_msg = "Entry invalid. Try 1, 2, 3 or 4"
 
             except (KeyboardInterrupt, EOFError):
                 break
@@ -482,19 +496,20 @@ def main():
         rows=10,
         cols=10,
         entry=(0, 0),
-        exit=(4, 4),
+        exit=(9, 9),
         perfect=True,
         seed=None,
-        output_file="maze.txt"
+        output_file="out_maze.txt"
     )
 
     generator.generate()
 
     generator.write_file()
-
+    # breakpoint()
     render = MazeRender(generator)
     render.render()
     render.interaction()
+
 
 if __name__ == "__main__":
     main()
