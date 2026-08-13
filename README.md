@@ -1,257 +1,250 @@
-# 🌿 Fluxo de Trabalho git/github
+*This project has been created as part of the 42 curriculum by lsantann and gsabino-.*
 
-## 1. Atualize a `master`
+## Description
+
+**a-maze-ing** is a Python program that generates and displays mazes based on a validated configuration file.
+
+The goal of this project is to understand software architecture, including:
+* **Backtracking:** Uses a stack-based backtracking algorithm to carve the maze.
+* **Development tools:** Makefile, virtual environments, debuggers, and static analysis tools.
+* **Docstrings:** Functions and classes are documented using Python docstrings.
+* **Architecture:** The project is divided into independent modules for configuration parsing, maze generation, and rendering.
+* **Reusability:** Core components are designed to be imported and reused independently.
+
+## Instructions
+
+### Makefile commands
+
+| Command            | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| `make install`     | Create the virtual environment and install dependencies |
+| `make run`         | Run the maze generator                                  |
+| `make debug`       | Run the program using Python's debugger                 |
+| `make clean`       | Remove Python cache files                               |
+| `make lint`        | Run Flake8 and Mypy                                     |
+
+
+### Configuration file
+
+| Key           | Example    | Type after parsing | Validation        |
+| ------------- | ---------- | ------------------ | ----------------- |
+| `WIDTH`       | `20`       | `int`              | > 0               |
+| `HEIGHT`      | `15`       | `int`              | > 0               |
+| `ENTRY`       | `0,0`      | `tuple[int, int]`  | Inside maze       |
+| `EXIT`        | `19,14`    | `tuple[int, int]`  | Inside maze       |
+| `OUTPUT_FILE` | `maze.txt` | `str`              | Cannot be empty   |
+| `PERFECT`     | `True`     | `bool`             | `True` or `False` |
+| `SEED`        | `42`       | `int`              | Optional          |
+
+### Usage
 
 ```bash
-git switch master
-git pull origin master
+
+make run
+
 ```
 
-## 2. Atualize sua branch
+## Project architecture
 
-```bash
-git switch <sua_branch>
-git merge master
-```
-
-## 3. Desenvolva a funcionalidade
-
-Faça as alterações na **sua branch**.
-
-## 4. Salve as alterações
-
-```bash
-git add .
-git commit -m "Descrição do que foi feito"
-git push origin <sua_branch>
-```
-
-## 5. Abra um Pull Request
-
-No GitHub, crie um **Pull Request** da sua branch para a `master`.
-
-## 6. Review e Merge
-
-* O outro integrante revisa o código.
-* Se necessário, faça novos `commit` + `push`.
-* Após a aprovação, realize o **Merge**.
-
----
-
-## ✅ Boas práticas
-
-Boa prática: sempre que for começar uma nova funcionalidade, primeiro atualize sua master com git pull origin master e depois atualize sua branch com git merge master. Assim você trabalha sempre com a versão mais recente do projeto e reduz a chance de conflitos.
-
-
-# Amazing - Estrutura minima do fluxo
-
-## Objetivo
-
-Gerar um labirinto a partir de um arquivo de configuração, exportá-lo e renderizá-lo.
-
----
-
-# Fluxo Geral
+### Generation Pipeline
 
 ```text
-Config (.txt)
-      │
-      ▼
- ConfigParser
-      │
-      ▼
+config.txt
+    │
+    ▼
+ConfigParser
+    │
+    ▼
+Validated configuration
+    │
+    ▼
 MazeGenerator
-      │
-      ▼
-     Maze
-      │
-      ▼
-MazeRenderer
-      │
-      ▼
-ASCII / MLX
-```
-
----
-
-# Estrutura do Projeto
-
-```text
-amazeg/
-
-├── main.py
-├── models/
-│   ├── cell.py
-│   └── maze.py
-├── generator/
-│   └── maze_generator.py
-├── parser/
-│   └── config_parser.py
-└── renderer/
-    └── maze_renderer.py
-```
-
----
-
-# Responsabilidade de Cada Classe
-
-## Cell
-
-Representa uma única célula.
-
-* posição
-* paredes (N, E, S, W)
-* visitada
-
----
-
-## Maze
-
-Representa o labirinto.
-
-* largura
-* altura
-* matriz de Cells
-* entrada
-* saída
-
----
-
-## MazeGenerator
-
-Responsável por gerar o labirinto.
-
-Entrada:
-
-* width
-* height
-* seed
-* perfect
-
-Saída:
-
-* Maze
-
----
-
-## ConfigParser
-
-Responsável por:
-
-* ler o arquivo
-* validar dados
-* criar a configuração
-
----
-
-## MazeRenderer
-
-Responsável por:
-
-* desenhar
-* exportar
-* interação do usuário
-
----
-
-# Divisão da Dupla
-
-## Pessoa A
-
-* Cell
-* Maze
-* MazeGenerator
-* Algoritmo de geração
-
-## Pessoa B
-
-* ConfigParser
-* MazeRenderer
-* Exportação
-* Interface
-* Interações
-
----
-
-# Ordem de Desenvolvimento
-
-* [ ] Criar Cell
-* [ ] Criar Maze
-* [ ] Criar MazeGenerator
-* [ ] Implementar Backtracking
-* [ ] Gerar Perfect Maze
-* [ ] Adicionar Loops
-* [ ] Parser
-* [ ] Renderer
-* [ ] Testes
-
----
-
-# Main
-
-```text
-main()
-
-↓
-
-parser.parse()
-
-↓
-
-MazeGenerator(config)
-
-↓
-
-maze.generate()
-
-↓
-
-renderer.export()
-
-↓
-
-renderer.render()
-
-↓
-
-renderer.interaction()
-```
-
----
-
-# Objetivo do Gerador
-
-```text
-Criar Maze
-
-↓
-
-Criar Cells
-
-↓
-
-Aplicar algoritmo
-
-↓
-
-Retornar Maze
-```
-
----
-
-# Objetivo Final
-
-```text
-Arquivo (.txt)
-
-↓
-
-Config
-
-↓
-
+    │
+    ├── Pattern42
+    │
+    ├── MazeBacktrack
+    │
+    └── MazePacMan (if PERFECT=False)
+    │
+    ▼
 Maze
-
-↓
-Labirinto Renderizado
+    │
+    ▼
+MazeRenderer
+    │
+    ├── Terminal display
+    └── Output file
 ```
+
+### Configuration File
+
+The configuration file contains one `KEY=VALUE` pair per line.
+
+Lines beginning with `#` are treated as comments and ignored.
+
+Example:
+
+```text
+# Maze configuration
+
+WIDTH=20
+HEIGHT=15
+ENTRY=0,0
+EXIT=19,14
+OUTPUT_FILE=maze.txt
+PERFECT=True
+SEED=42
+```
+
+## Maze structure
+
+The maze is represented as a Grid containing Cell objects. Each cell stores its coordinates, visited state, 42 pattern state, and wall configuration.
+
+- **Wall:** The four walls of each cell are represented using individual bits. `NORTH=1`, `EAST=2`, `SOUTH=4`, and `WEST=8`. A cell with all four walls closed has the value `15` (`1111` in binary).
+- **Cell:** Represents a single maze cell, storing its coordinates, visited state, `42` pattern state, and walls.
+- **Grid:** Represents the two-dimensional collection of cells and provides operations for accessing cells, validating positions, and connecting neighboring cells.
+
+## Maze Generation Algorithm
+
+### Backtracking
+
+The maze is generated using a depth-first search (DFS) backtracking algorithm.
+
+The algorithm starts from the entrance and repeatedly selects an unvisited neighboring cell. The wall between the current cell and the selected cell is removed, and the new cell becomes the current position.
+
+When the current cell has no unvisited neighbors, the algorithm backtracks using a stack until it finds a cell with available neighbors.
+
+### Why Backtracking?
+
+We chose backtracking because:
+
+- Backtracking initially generates a perfect maze. When `PERFECT=False`, the `MazePacMan` component adds additional connections, creating loops and a more open maze structure.
+- It is relatively simple to implement and understand.
+- A stack provides an efficient way to manage the backtracking process.
+- The algorithm works well with our `Grid` and `Cell` architecture.
+- It can be extended to support different maze-generation behaviors.
+
+## Features
+
+- When `PERFECT=True`, the maze is generated without loops.
+- When `PERFECT=False`, additional connections can be created to produce a more open maze structure.
+- When the maze dimensions are large enough, the `42` pattern is placed in the center of the maze.
+- The optional `SEED` configuration parameter allows deterministic maze generation. Using the same seed and configuration produces the same maze, which is useful for debugging and testing.
+
+## Code Reusability
+
+The project is divided into independent components that can be imported and reused:
+
+- `ConfigParser` can read and validate maze configuration files independently from the generator.
+- `Grid` and `Cell` provide a reusable representation of a maze.
+- `MazeGenerator` generates mazes from custom dimensions, entry and exit positions, `PERFECT` mode, and seeds.
+- `MazeRenderer` is separated from the generation logic, allowing the generated maze to be displayed using a different interface.
+
+### Reusable Maze Generator
+
+The maze generation logic is provided as a reusable Python package called
+`mazegen-lsantann`.
+
+The package can be built from the project sources and installed using the generated wheel:
+
+```bash
+python -m build
+pip install dist/mazegen_lsantann-1.0.0-py3-none-any.whl
+```
+
+### Basic usage
+
+```text
+from src.maze import MazeGenerator
+from src.renderer import MazeRenderer
+
+generator = MazeGenerator(
+    rows=20,
+    cols=20,
+    entry=(1, 1),
+    exit=(19, 14),
+    perfect=True,
+    seed=42,
+    output_file="out_maze.txt"
+)
+
+generator.generate()
+
+renderer = MazeRenderer(generator.grid)
+renderer.show()
+```
+
+### Development Tools
+
+The following tools were used during development:
+
+- **Python:** Main programming language.
+- **Git:** Version control and team collaboration.
+- **GitHub:** Remote repository and branch management.
+- **Make:** Project automation and development commands.
+- **venv:** Python dependency isolation.
+- **Flake8:** Static code analysis and style checking.
+- **Mypy:** Static type checker for Python.
+- **pdb:** Python built-in debugger.
+- **VirtualBox:** Development environment used during the project.
+
+## Team & Project Management
+
+### Initial Planning
+
+At the beginning of the project, we divided the project into independent responsibilities:
+
+- **Giovanna:** maze architecture, generation algorithm and rendering.
+- **Luciano:** configuration parsing, Makefile, distribution package and documentation.
+
+The initial plan was to develop these components independently and integrate them through `main.py`.
+
+### How the Plan Evolved
+
+During development, the responsibilities remained mostly the same, but the architecture evolved as we gained a better understanding of the subject.
+
+The maze representation became object-oriented, using `Cell` and `Grid` classes. The generator was also divided into separate components such as `MazeBacktrack`, `MazePacMan`, `Pattern42`, and `MazeGenerator`.
+
+The configuration parser was also extended to support validation and the optional `SEED` parameter.
+
+### What Worked Well
+
+- Dividing the project into independent modules allowed both members to work simultaneously.
+- Git branches allowed us to develop features independently before merging them into `main`.
+- Separating parsing, generation, and rendering reduced dependencies between components.
+- Regular communication helped us integrate the different parts of the project.
+
+### What Could Be Improved
+
+The initial architecture was not completely clear to us, so some decisions were made while implementation was already in progress.
+
+We could improve the project management by:
+
+- defining the module interfaces earlier;
+- agreeing on function and class responsibilities before implementation;
+- having more frequent in-person discussions;
+- writing tests earlier in the development process.
+
+## Resources
+
+### Documentation
+
+- [Python Documentation](https://docs.python.org/3/)
+- [Python `venv` Documentation](https://docs.python.org/3/library/venv.html)
+- [Python `pdb` Documentation](https://docs.python.org/3/library/pdb.html)
+- [Python `enum.IntFlag` Documentation](https://docs.python.org/3/library/enum.html)
+- [Backtracking](https://en.wikipedia.org/wiki/Backtracking)
+- [Flake8 Documentation](https://flake8.pycqa.org/)
+- [Mypy Documentation](https://mypy.readthedocs.io/)
+
+### AI Usage
+
+AI was used as a learning and development assistant, not as a replacement for implementation.
+
+It was used for:
+
+- **ConfigParser:** Understanding Python type conversion, input validation, and edge cases.
+- **Makefile:** Understanding Python project automation and development commands.
+- **README:** Improving documentation structure, technical explanations, and English phrasing.
+- **Debugging:** Understanding error messages and investigating implementation issues.
+- **Architecture:** Discussing module responsibilities and code organization.
