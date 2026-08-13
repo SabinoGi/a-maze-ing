@@ -75,7 +75,7 @@ class MazeRender:
             right = PAREDE if last_cell.has_wall(Wall.EAST) else " "
             print(right)
 
-        """Bottom line of the last row"""       
+        """Bottom line of the last row"""
         for col in range(grid.cols):
             cell = grid.get_cell(grid.rows - 1, col)
             bottom = TETO if cell.has_wall(Wall.SOUTH) else VAZIO
