@@ -40,6 +40,11 @@ The goal of this project is to understand software architecture, including:
 
 ```bash
 
+make install
+
+```
+```bash
+
 make run
 
 ```
@@ -143,7 +148,7 @@ The project is divided into independent components that can be imported and reus
 ### Reusable Maze Generator
 
 The maze generation logic is provided as a reusable Python package called
-`mazegen-lsantann`.
+`mazegen-info`.
 
 The package can be built from the project sources and installed using the generated wheel:
 
@@ -155,23 +160,42 @@ pip install dist/mazegen_lsantann-1.0.0-py3-none-any.whl
 ### Basic usage
 
 ```text
-from src.maze import MazeGenerator
-from src.renderer import MazeRenderer
+ $ cat example.py
 
-generator = MazeGenerator(
-    rows=20,
-    cols=20,
-    entry=(1, 1),
-    exit=(19, 14),
-    perfect=True,
-    seed=42,
-    output_file="out_maze.txt"
-)
+    from mazegen import MazeGenerator
 
-generator.generate()
+        def main() -> None:
 
-renderer = MazeRenderer(generator.grid)
-renderer.show()
+            generator = MazeGenerator(
+                rows=10,
+                cols=10,
+                entry=(0, 0),
+                exit=(9, 9),
+                perfect=True,
+                seed=42,
+                output_file="maze.txt",
+                seed=None
+            )
+
+            generator.generate()
+            generator.write_file()
+
+            matrix_status, solution_path = generator.get_maze_data()
+
+            print(f"Cell (0,0) Mask: {matrix_status[0][0]}")
+            print(f"Solution [N,S,E,W]: {solution_path}")
+
+        if __name__ == "__main__":
+            main()
+
+EXECUTION OUTPUT
+     $ python3 example.py
+     Cell (0,0) Mask: 9
+     Solution [N,S,E,W]: ['E', 'E', 'S', 'S', 'E', 'S', 'W', 'S', 'E', 'S']
+
+     $ cat out_maze.txt
+     9A3C...
+     EESSESWSES
 ```
 
 ### Development Tools

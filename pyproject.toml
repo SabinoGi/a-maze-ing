@@ -3,12 +3,15 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mazegen-lsantann"
+name = "mazegen"
 version = "1.0.0"
 description = "Reusable maze generation library"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE.md" }
-
+authors = [
+    { name = "gsabino-" },
+    { name = "lsantann" },
+]
 [tool.setuptools.packages.find]
 include = ["mazegen*"]

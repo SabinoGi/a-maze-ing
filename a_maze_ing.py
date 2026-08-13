@@ -12,14 +12,6 @@ def parse_args() -> str:
     return sys.argv[1]
 
 
-# def run_tests(config: dict[str, Any]) -> None:
-#     """Isola as impressões de teste e inspeção de dados."""
-#     print("--- [ TESTE DE CONFIGURAÇÃO ] ---")
-#     print(f"Tipo do objeto: {type(config)}")
-#     print(f"Conteúdo: {config}")
-#     print("---------------------------------")
-
-
 def main() -> None:
     config_file = parse_args()
 
