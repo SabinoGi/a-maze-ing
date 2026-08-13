@@ -117,27 +117,3 @@ class MazeGenerator:
 
             path_string = "".join(solution_path)
             f.write(f"{path_string}\n")
-
-
-def main() -> None:
-    generator = MazeGenerator(
-        rows=10,
-        cols=10,
-        entry=(0, 0),
-        exit=(9, 9),
-        perfect=True,
-        seed=None,
-        output_file=""
-    )
-
-    generator.generate()
-
-    generator.write_file()
-
-    # render = MazeRender(generator)
-    # render.render()
-    # render.interaction()
-
-
-if __name__ == "__main__":
-    main()
