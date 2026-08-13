@@ -1,6 +1,7 @@
 from mazegen import MazeGenerator
 from render import MazeRender
-from 
+from config_parser import ConfigParser
+
 
 def main():
 
@@ -15,7 +16,7 @@ def main():
     render = MazeRender(generator)
     render.render()
     render.interaction()
- 
+
 
 if __name__ == "__main__":
     main()

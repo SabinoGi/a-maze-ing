@@ -1,5 +1,8 @@
+from mazegen import MazeGenerator, MazeSolver, Wall
+
+
 class MazeRender:
-    """Renderiza o labirinto no terminal e gerencia o menu do usuário."""
+    """Renders the maze in the terminal and manages the user menu.."""
 
     def __init__(self, generator: MazeGenerator) -> None:
         self.generator = generator
@@ -12,19 +15,19 @@ class MazeRender:
         grid = self.generator.grid
         wall_color = self.colors[self.color_idx]
 
-        # Estilos dos elementos
+        """Element styles"""
         QUINA = f"\033[1m{wall_color}■\033[0m"
         TETO = f"\033[1m{wall_color}━━━\033[0m"
         PAREDE = f"\033[1m{wall_color}┃\033[0m"
         VAZIO = "   "
 
-        # Preenchimentos especiais
+        """Special fills"""
         ENTRY_BG = "\033[45m   \033[0m"    # Rosa/Magenta
         EXIT_BG = "\033[41m   \033[0m"     # Vermelho
         PATH_BG = "\033[42m   \033[0m"     # Verde
         PATTERN_BG = "\033[47m   \033[0m"  # Cinza ('42')
 
-        # Obtém os passos da solução apenas se a opção estiver ativada
+        """Obtains the solution steps only if the option is enabled."""
         path_positions = set()
         if self.show_path:
             path_str = MazeSolver(grid).shortest_path(
@@ -38,21 +41,21 @@ class MazeRender:
                 r, c = r + dr, c + dc
                 path_positions.add((r, c))
 
-        # Desenho do labirinto
+        """Maze design"""
         for row in range(grid.rows):
-            # 1. Linha superior
+            """Top line"""
             for col in range(grid.cols):
                 cell = grid.get_cell(row, col)
                 top = TETO if cell.has_wall(Wall.NORTH) else VAZIO
                 print(f"{QUINA}{top}", end="")
             print(QUINA)
 
-            # 2. Conteúdo central e paredes laterais
+            """Core content and side walls"""
             for col in range(grid.cols):
                 cell = grid.get_cell(row, col)
                 left = PAREDE if cell.has_wall(Wall.WEST) else " "
 
-                # Define a cor de fundo da célula
+                """Sets the cell background color"""
                 pos = (row, col)
                 if pos == self.generator.entry:
                     content = ENTRY_BG
@@ -67,12 +70,12 @@ class MazeRender:
 
                 print(f"{left}{content}", end="")
 
-            # Parede Leste da última coluna
+            """East wall of the last column"""
             last_cell = grid.get_cell(row, grid.cols - 1)
             right = PAREDE if last_cell.has_wall(Wall.EAST) else " "
             print(right)
 
-        # 3. Linha inferior da última fileira
+        """Bottom line of the last row"""       
         for col in range(grid.cols):
             cell = grid.get_cell(grid.rows - 1, col)
             bottom = TETO if cell.has_wall(Wall.SOUTH) else VAZIO
@@ -80,20 +83,20 @@ class MazeRender:
         print(QUINA)
 
     def interaction(self) -> None:
-        """Exibe o menu sem módulos externos."""
+        """Displays the menu without external modules."""
         error_msg = ""
 
         while True:
-            # 1. Limpa o terminal e renderiza o labirinto atual
+            """Clears the terminal and renders the current maze."""
             print("\033[H\033[2J", end="")
             self.render()
 
-            # 2. Se houver erro de digitação anterior, exibe agora
+            """If there was a previous typing error, it is displayed now."""
             if error_msg:
                 print(f"\n\033[91m{error_msg}\033[0m")
                 error_msg = ""
 
-            # 3. Exibe o menu
+            """Displays the menu"""
             print("\n=== A-Maze-ing ===")
             print("1. Re-generate a new maze")
             print("2. Show / Hide the shortest path")
@@ -104,10 +107,8 @@ class MazeRender:
                 choice = input("\033[92mChoice? (1-4): \033[0m").strip()
 
                 if choice == "1":
-                    # Cria novo labirinto na memória e salva no arquivo
                     self.generator.generate()
                     self.generator.write_file()
-                    # Na próxima volta do loop, render() desenhará o NOVO grid
                 elif choice == "2":
                     self.show_path = not self.show_path
                 elif choice == "3":

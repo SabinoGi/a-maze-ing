@@ -48,7 +48,8 @@ class ConfigParser:
                     parts = val.split(",")
 
                     if len(parts) != 2:
-                        raise ValueError("Esperado exatamente duas coordenadas.")
+                        raise ValueError(
+                            "Esperado exatamente duas coordenadas.")
 
                     x = int(parts[0].strip())
                     y = int(parts[1].strip())
