@@ -8,6 +8,8 @@ CONFIG = config.txt
 
 install:
 	$(PYTHON) -m venv $(VENV)
+	$(PIP) install --upgrade pip
+	$(PIP) install flake8 mypy
 
 run:
 	$(PYTHON_VENV) a_maze_ing.py $(CONFIG)
@@ -16,7 +18,7 @@ debug:
 	$(PYTHON_VENV) -m pdb a_maze_ing.py $(CONFIG)
 
 lint:
-	$(PYTHON_VENV) -m flake8 .
+	$(PYTHON_VENV) -m flake8 --exclude=$(VENV) .
 	$(PYTHON_VENV) -m mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \

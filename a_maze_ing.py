@@ -1,8 +1,8 @@
 import sys
 from mazegen import MazeGenerator
 from render import MazeRender
-from config_parser import ConfigParser
 from config_parser import ConfigParser, ConfigError
+
 
 def parse_args() -> str:
     """Garante que o caminho do arquivo foi passado no terminal."""
@@ -12,7 +12,7 @@ def parse_args() -> str:
     return sys.argv[1]
 
 
-def main() -> None:
+def main() -> int:
     try:
         config_file = parse_args()
         parser = ConfigParser(config_file)
@@ -37,6 +37,7 @@ def main() -> None:
     render = MazeRender(generator)
     render.render()
     render.interaction()
+    return 0
 
 
 if __name__ == "__main__":
