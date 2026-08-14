@@ -4,6 +4,7 @@ from render import MazeRender
 from config_parser import ConfigParser
 
 
+
 def parse_args() -> str:
     """Garante que o caminho do arquivo foi passado no terminal."""
     if len(sys.argv) != 2:
@@ -38,6 +39,7 @@ def main() -> None:
     render = MazeRender(generator)
     render.render()
     render.interaction()
+    return 0
 
 
 if __name__ == "__main__":
