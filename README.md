@@ -225,17 +225,11 @@ If the import isn't recognizing `mazegen`, check your development environment.
                 exit=(9, 9),
                 perfect=True,
                 seed=42,
-                output_file="maze.txt",
-                seed=None
+                output_file="maze.txt"
             )
 
             generator.generate()
             generator.write_file()
-
-            matrix_status, solution_path = generator.get_maze_data()
-
-            print(f"Cell (0,0) Mask: {matrix_status[0][0]}")
-            print(f"Solution [N,S,E,W]: {solution_path}")
 
         if __name__ == "__main__":
             main()
