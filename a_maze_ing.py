@@ -12,21 +12,15 @@ def parse_args() -> str:
     return sys.argv[1]
 
 
-# def run_tests(config: dict[str, Any]) -> None:
-#     """Isola as impressões de teste e inspeção de dados."""
-#     print("--- [ TESTE DE CONFIGURAÇÃO ] ---")
-#     print(f"Tipo do objeto: {type(config)}")
-#     print(f"Conteúdo: {config}")
-#     print("---------------------------------")
-
-
 def main() -> None:
     config_file = parse_args()
 
-    parser = ConfigParser(config_file)
-    config = parser.parse()
-
-    seed_val = int(config["SEED"]) if config.get("SEED") is not None else None
+    try:
+        parser = ConfigParser(config_file)
+        config = parser.parse()
+    except ValueError as error:
+        print(F"Error: {error}")
+        return 1
 
     generator = MazeGenerator(
         rows=config["HEIGHT"],
@@ -35,7 +29,7 @@ def main() -> None:
         exit=config["EXIT"],
         perfect=config["PERFECT"],
         output_file=config["OUTPUT_FILE"],
-        seed=seed_val,
+        seed=config["SEED"]
     )
 
     generator.generate()
@@ -47,4 +41,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

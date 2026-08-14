@@ -65,13 +65,12 @@ USAGE EXAMPLE
                 exit=(9, 9),
                 perfect=True,
                 seed=42,
-                output_file="maze.txt"
+                output_file="maze.txt",
             )
 
             generator.generate()
             generator.write_file()
 
-            # Direct memory data retrieval
             matrix_status, solution_path = generator.get_maze_data()
 
             print(f"Cell (0,0) Mask: {matrix_status[0][0]}")

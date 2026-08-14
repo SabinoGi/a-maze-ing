@@ -6,7 +6,7 @@ class ConfigParser:
         self.file_path = file_path
 
     def file_reader(self) -> dict[str, str]:
-        """Lê o arquivo de configuração definido em self.file_path."""
+        """Reads the configuration file defined in self.file_path."""
         config = {}
         with open(self.file_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -20,7 +20,7 @@ class ConfigParser:
         return config
 
     def validator(self, pre_config: dict[str, str]) -> dict[str, typing.Any]:
-        """Valida e converte os valores do dicionário de configuração."""
+        """Validates and converts values from the configuration dictionary."""
         config: dict[str, typing.Any] = {}
 
         try:
@@ -28,12 +28,12 @@ class ConfigParser:
             height = int(pre_config.get("HEIGHT", 0))
         except ValueError:
             raise ValueError(
-                "WIDTH e HEIGHT devem ser números inteiros válidos."
+                "WIDTH and HEIGHT must be valid integers."
             )
 
         if width <= 0 or height <= 0:
             raise ValueError(
-                "WIDTH e HEIGHT devem ser números maiores que 0."
+                "WIDTH and HEIGHT must be numbers greater than 0."
             )
 
         config["WIDTH"] = width
@@ -49,7 +49,8 @@ class ConfigParser:
 
                     if len(parts) != 2:
                         raise ValueError(
-                            "Esperado exatamente duas coordenadas.")
+                            "Expected exactly two coordinates."
+                        )
 
                     x = int(parts[0].strip())
                     y = int(parts[1].strip())
@@ -57,13 +58,13 @@ class ConfigParser:
 
                 except ValueError as error:
                     raise ValueError(
-                        f"{key} deve estar no formato 'x,y'. Erro: {error}"
+                        f"{key} must be in 'x,y' format. Error: {error}"
                     )
 
                 if not (0 <= x < width and 0 <= y < height):
                     raise ValueError(
-                        f"A coordenada {key} {coord} está fora "
-                        f"dos limites ({width}x{height})!"
+                        f"The coordinate {key} {coord} is out of "
+                        f"bounds ({width}x{height})!"
                     )
 
                 config[key] = coord
@@ -79,16 +80,27 @@ class ConfigParser:
 
                 else:
                     raise ValueError(
-                        f"PERFECT deve ser True ou False, recebido: '{val}'"
+                        f"PERFECT must be True or False, received: '{val}'"
                     )
 
             elif key == "OUTPUT_FILE":
                 if not val.strip():
                     raise ValueError(
-                        "OUTPUT_FILE não pode estar vazio."
+                        "OUTPUT_FILE cannot be empty."
                     )
 
                 config["OUTPUT_FILE"] = val.strip()
+
+            elif key == "SEED":
+                seed = pre_config["SEED"].strip()
+
+                if seed.lower() in ("none", ""):
+                    config["SEED"] = None
+                else:
+                    try:
+                        config["SEED"] = int(seed)
+                    except ValueError:
+                        raise ValueError("SEED must be an integer or None!")
 
             else:
                 config[key] = val
@@ -96,6 +108,6 @@ class ConfigParser:
         return config
 
     def parse(self) -> dict[str, typing.Any]:
-        """Executa a leitura e a validação em sequência."""
+        """Executes reading and validation sequentially."""
         pre_config = self.file_reader()
         return self.validator(pre_config)
