@@ -1,7 +1,8 @@
 import sys
 from mazegen import MazeGenerator
 from render import MazeRender
-from config_parser import ConfigParser, ConfigError
+from config_parser import ConfigParser
+
 
 
 def parse_args() -> str:
@@ -12,12 +13,13 @@ def parse_args() -> str:
     return sys.argv[1]
 
 
-def main() -> int:
+def main() -> None:
+    config_file = parse_args()
+
     try:
-        config_file = parse_args()
         parser = ConfigParser(config_file)
         config = parser.parse()
-    except (ValueError, FileNotFoundError, ConfigError) as error:
+    except ValueError as error:
         print(F"Error: {error}")
         return 1
 
